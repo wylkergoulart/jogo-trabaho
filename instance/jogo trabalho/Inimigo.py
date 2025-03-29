@@ -1,6 +1,5 @@
 import pygame
 
-
 class Inimigo:
     def __init__(self, x, y, limite, vx=2):
         self.x = x

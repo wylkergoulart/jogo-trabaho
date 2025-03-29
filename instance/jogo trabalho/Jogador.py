@@ -1,10 +1,10 @@
 import pygame
 
 class Jogador(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, imagem_path='./assets/jogador.png'):
         super().__init__()
-        self.image = pygame.Surface((50, 50))  # Tamanho do jogador
-        self.image.fill((0, 0, 255))  # Cor azul
+        self.image = pygame.image.load(imagem_path).convert_alpha()  # Carrega a imagem original
+        self.image = pygame.transform.scale(self.image, (100, 100))  # Redimensiona a imagem para 100x100
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
