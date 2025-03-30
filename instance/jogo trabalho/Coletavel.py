@@ -1,14 +1,15 @@
 import pygame
 
-class Coletavel:
+class Coletavel(pygame.sprite.Sprite):
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.largura = 20
-        self.altura = 20
-        self.rect = pygame.Rect(self.x, self.y, self.largura, self.altura)
-        self.ativo = True  # Inicialmente ativo
+        super().__init__()
+        self.image = pygame.Surface((20, 20))
+        self.image.fill((255, 0, 0))  # Cor do coletável (vermelho)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.ativo = True
 
-    def desenhar(self, screen):
+    def desenhar(self, tela):
         if self.ativo:
-            pygame.draw.circle(screen, (0, 255, 255), self.rect.center, self.largura // 2)  # Desenha em ciano
+            tela.blit(self.image, self.rect)

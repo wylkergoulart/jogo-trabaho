@@ -1,50 +1,51 @@
 import pygame
 
 class Jogador(pygame.sprite.Sprite):
-    def __init__(self, x, y, imagem_path='./assets/jogador.png'):
+    def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load(imagem_path).convert_alpha()  # Carrega a imagem original
-        self.image = pygame.transform.scale(self.image, (100, 100))  # Redimensiona a imagem para 100x100
+        self.image = pygame.image.load('./assets/jogador.png')  # Imagem padrão (direita)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.velocidade_x = 0
         self.velocidade_y = 0
-        self.no_chao = False  # Flag para verificar se o jogador está no chão
-        self.pulos = 0  # Contador de pulos
+        self.gravidade = 0.8
+        self.pulos_restantes = 2  # Permite um pulo normal + um pulo extra
 
     def update(self, plataformas):
-        self.velocidade_y += 1  # Simula a gravidade
-        self.rect.x += self.velocidade_x
+        # Aplicar gravidade
+        self.velocidade_y += self.gravidade
         self.rect.y += self.velocidade_y
 
-        # Colisão com plataformas
-        self.no_chao = False  # Resetar no_chao a cada atualização
+        # Verificar colisão vertical
         for plataforma in plataformas:
             if self.rect.colliderect(plataforma.rect):
-                self.no_chao = True  # O jogador está no chão
-                self.velocidade_y = 0  # Reseta a velocidade vertical ao colidir com a plataforma
-                self.rect.y = plataforma.rect.top - self.rect.height  # Faz o jogador "subir" na plataforma
-                break  # Evita múltiplas colisões
+                if self.velocidade_y > 0 and self.rect.bottom > plataforma.rect.top:
+                    self.rect.bottom = plataforma.rect.top
+                    self.velocidade_y = 0
+                    self.pulos_restantes = 2  # Reseta os pulos ao tocar o chão
+                elif self.velocidade_y < 0 and self.rect.top < plataforma.rect.bottom:
+                    self.rect.top = plataforma.rect.bottom
+                    self.velocidade_y = 0
 
-        # Impede que o jogador saia da tela
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > 800:  # Supondo que a largura da tela seja 800
-            self.rect.right = 800
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > 600:  # Supondo que a altura da tela seja 600
-            self.rect.bottom = 600
+        # Aplicar movimento horizontal
+        self.rect.x += self.velocidade_x
 
-    def mover(self, dx, dy):
+        # Verificar colisão lateral
+        for plataforma in plataformas:
+            if self.rect.colliderect(plataforma.rect):
+                if self.velocidade_x > 0:
+                    self.rect.right = plataforma.rect.left
+                elif self.velocidade_x < 0:
+                    self.rect.left = plataforma.rect.right
+
+    def desenhar(self, tela):
+        tela.blit(self.image, self.rect)
+
+    def mover(self, dx):
         self.velocidade_x = dx
-        self.velocidade_y = dy
 
     def pular(self):
-        if self.no_chao or self.pulos < 2:  # Permite um pulo duplo
-            self.velocidade_y = -15  # Ajuste da força do pulo
-            self.pulos += 1  # Incrementa o contador de pulos
-
-    def desenhar(self, screen):
-        screen.blit(self.image, self.rect)  # Desenha o jogador na tela
+        if self.pulos_restantes > 0:
+            self.velocidade_y = -15
+            self.pulos_restantes -= 1  # Gasta um pulo

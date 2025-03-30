@@ -19,28 +19,28 @@ BLACK = (0, 0, 0)
 
 # Classe para os botões
 class Button:
-    def __init__(self, text, x, y, width, height, color, hover_color):
+    def __init__(self, text, x, y, font_size, color, hover_color):
         self.text = text
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
+        self.font_size = font_size
         self.color = color
         self.hover_color = hover_color
-        self.rect = pygame.Rect(x, y, width, height)
+        self.rect = pygame.Rect(x, y, 0, 0)  # O retângulo é agora apenas para detecção de clique
 
     def draw(self, screen):
+        # Cria a fonte e o texto
+        font = pygame.font.Font(None, self.font_size)
+        text_surface = font.render(self.text, True, self.color)
+        text_rect = text_surface.get_rect(center=(self.x, self.y))
+        self.rect = text_rect  # Atualiza o retângulo para o tamanho do texto
+
         # Verifica se o mouse está sobre o botão
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
-            pygame.draw.rect(screen, self.hover_color, self.rect)  # Cor de hover
-        else:
-            pygame.draw.rect(screen, self.color, self.rect)  # Cor normal
+            text_surface = font.render(self.text, True, self.hover_color)  # Aplica a cor de hover no texto
 
-        # Desenha o texto do botão
-        font = pygame.font.Font(None, 36)
-        text_surface = font.render(self.text, True, WHITE)
-        text_rect = text_surface.get_rect(center=self.rect.center)
+        # Desenha o texto na tela
         screen.blit(text_surface, text_rect)
 
     def is_clicked(self, event):
@@ -51,39 +51,52 @@ class Button:
         return False
 
 
-# Função para a tela de carregamento
-def show_loading_screen():
-    loading_font = pygame.font.Font(None, 50)
-    loading_text = loading_font.render("Carregando...", True, BLACK)
-    screen.fill(WHITE)
-    screen.blit(loading_text, (
-    SCREEN_WIDTH // 2 - loading_text.get_width() // 2, SCREEN_HEIGHT // 2 - loading_text.get_height() // 2))
-    pygame.display.flip()
-    pygame.time.wait(2000)  # Espera 2 segundos
+# Classe para o Menu
+class Menu:
+    def __init__(self):
+        # Botões do menu
+        self.play_button = Button("Jogar", 400, 250, 48, GRAY, DARK_GRAY)
+        self.exit_button = Button("Sair", 400, 350, 48, GRAY, DARK_GRAY)
 
+        # Fonte e título do jogo
+        self.title_font = pygame.font.Font(None, 72)
+        self.title_text = self.title_font.render("Caminho da Estrela", True, WHITE)
+        self.title_rect = self.title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
 
-# Criando os botões
-play_button = Button("Jogar", 300, 200, 200, 50, GRAY, DARK_GRAY)
-exit_button = Button("Sair", 300, 300, 200, 50, GRAY, DARK_GRAY)
+    def draw(self):
+        # Desenha o fundo
+        screen.fill(BLACK)
+
+        # Desenha o título
+        screen.blit(self.title_text, self.title_rect)
+
+        # Desenha os botões
+        self.play_button.draw(screen)
+        self.exit_button.draw(screen)
+
+    def handle_events(self, event):
+        # Lógica do menu
+        if self.play_button.is_clicked(event):
+            return False  # Mudar para a tela de jogo ou outro estado
+        if self.exit_button.is_clicked(event):
+            return False  # Fechar o jogo
+        return True
+
 
 # Loop principal
 running = True
-while running:
-    screen.fill(WHITE)  # Fundo branco
+menu = Menu()
 
+while running:
     # Processa eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if play_button.is_clicked(event):
-            show_loading_screen()  # Mostra a tela de carregamento
-            print("Aqui você pode adicionar a lógica do jogo")
-        if exit_button.is_clicked(event):
-            running = False
+        # Chamando o método que lida com os eventos do menu
+        running = menu.handle_events(event)
 
-    # Desenha os botões
-    play_button.draw(screen)
-    exit_button.draw(screen)
+    # Desenha o menu
+    menu.draw()
 
     pygame.display.flip()  # Atualiza a tela
 
