@@ -20,6 +20,15 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Caminho da estrela")
 clock = pygame.time.Clock()
 
+import pygame
+
+# Inicializar Pygame
+pygame.mixer.init()
+
+# Carregar e tocar o áudio
+pygame.mixer.music.load('./assets/Score.mp3')
+pygame.mixer.music.play(-1)  # Reproduzir em loop (-1 significa loop infinito)
+
 # Carregando as imagens de fundo
 fundomenu = pygame.image.load('./assets/fundomenu.png')
 fundofase = pygame.image.load('./assets/fundofase.png')
